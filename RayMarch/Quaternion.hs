@@ -1,23 +1,23 @@
 module RayMarch.Quaternion (
   Quaternion,
-  apply,
+  apply,prod,
+  defQ,
+  xRotate,yRotate,zRotate,
   inverse) where
 
 import RayMarch.Types hiding (norm)
-
-type Quaternion = (Vector,Float)
 
 add :: Quaternion -> Quaternion -> Quaternion
 add (v,t) (w,u) = (v<+>w, t + u)
 
 prod :: Quaternion -> Quaternion -> Quaternion
-prod (v,t) (w,u) = (t*u-v`dot`w, w<*>t + v<*>u + v`cross`w)
+prod (v,t) (w,u) = (w<*>t <+> v<*>u <+> v`cross`w,t*u-v`dot`w)
 
-neg :: Quaterion -> Quaternion
+neg :: Quaternion -> Quaternion
 neg (v,t) = (inv v, -t)
 
 conj :: Quaternion -> Quaternion
-conj (v,t) = (-v,t)
+conj (v,t) = (inv v,t)
 
 scale :: Quaternion -> Float -> Quaternion
 scale (v,t) r = (v<*>r, t * r)
@@ -41,7 +41,19 @@ norm :: Quaternion -> Float
 norm = sqrt . lenSq
 
 inverse :: Quaternion -> Quaternion
-inverse q = conj q`prod`recip (lenSq q)
+inverse q = conj q`scale`recip (lenSq q)
 
 apply :: Quaternion -> Vector -> Vector
 apply q u = let (v,_) = (conj q)`prod`(u,0)`prod`q in v
+
+defQ :: Quaternion
+defQ = (zero,1)
+
+xRotate :: Float -> Quaternion
+xRotate t = (Vector (sin (t/2),0,0),cos (t/2))
+
+yRotate :: Float -> Quaternion
+yRotate t = (Vector (0,sin (t/2),0),cos (t/2))
+
+zRotate :: Float -> Quaternion
+zRotate t = (Vector (0,0,sin (t/2)),cos (t/2))
