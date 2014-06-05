@@ -6,6 +6,7 @@ type Float3 = (Float, Float, Float)
 newtype Vector = Vector Float3
 type Point = Vector
 newtype Color = Color Float3
+type Quaternion = (Vector, Float)
 
 class Arith a where
   (<->) :: a -> a -> a
@@ -21,8 +22,9 @@ class Additive a where
 
 class Arith a => Direction a where
   len :: a -> Float
+  unit :: a
   norm :: a -> a
-  norm v = v </> len v
+  norm v = if len v == 0 then unit else v </> len v
 
 class Each a where
   each :: (Float -> Float) -> a -> a
@@ -42,6 +44,7 @@ instance Additive Vector where
 
 instance Direction Vector where
   len (Vector (a,b,c)) = sqrt (a*a+b*b+c*c)
+  unit = Vector (1,0,0)
 
 instance Each Vector where
   each f (Vector (a,b,c)) = Vector (f a,f b,f c)
@@ -71,9 +74,9 @@ type Pixel = (Float,Float)
 
 data View = View {
   position :: Point,
-  direction :: Vector,
+  direction :: Quaternion,
   fov :: Float,
-  aspect :: Float
+  ratio :: Float
 }
 
 data Config = Config {
@@ -85,7 +88,7 @@ data Config = Config {
 
 data World = World {
   distancer :: Distance,
-  advancer :: Point -> Vector -> March Color,
+  advancer :: Point -> Vector -> March (Maybe Color),
   effector :: Point -> Config -> Pixel -> Color -> Color,
   advanceCount :: Int,
   advanceLimit :: Int,
@@ -97,9 +100,3 @@ type March = State World
 
 type Distance = Point -> (Float, Object)
 type Object = Point -> Vector -> March Color
-
-world :: March World
-world = get
-
-setWorld :: World -> March ()
-setWorld = put
