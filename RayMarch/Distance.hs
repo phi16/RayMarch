@@ -21,7 +21,7 @@ import RayMarch.Operate
     (ad,ao) = x p
     (bd,bo) = y p
     d = ad`smin`bd
-    r = (d-ad)/(bd-ad)
+    r = clamp (0.5+0.5*(bd-ad)/smooth) (0,1)
     obj p v = do
       a <- ao p v
       b <- bo p v

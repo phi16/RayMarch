@@ -36,3 +36,16 @@ reflect p v = do
       put $ w {advanceCount = a, reflectCount = r}
       return c
     else return Nothing
+
+maxReflect :: Int -> March a -> March (Maybe a)
+maxReflect x a = do
+  w <- get
+  let r = reflectCount w
+      u = reflectLimit w
+  if r <= u
+    then do
+      put $ w {reflectCount = r+1, reflectLimit = x}
+      t <- a
+      put $ w {reflectCount = r, reflectLimit = u}
+      return $ Just t
+    else return Nothing

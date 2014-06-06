@@ -10,7 +10,7 @@ import RayMarch.Default.Effector
 
 main :: IO ()
 main = runMarcher config world where
-  config = Config "out.png" testView 600 black
+  config = Config "out.png" testView 200 black
   world = defaultWorld {
     distancer = testSphere,
     advancer = simpleAdvancer,

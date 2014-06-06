@@ -1,6 +1,7 @@
 module RayMarch.Types where
 
 import Control.Monad.Trans.State
+import Control.Applicative hiding ((<*>))
 
 type Float3 = (Float, Float, Float)
 newtype Vector = Vector Float3
@@ -100,3 +101,6 @@ type March = State World
 
 type Distance = Point -> (Float, Object)
 type Object = Point -> Vector -> March Color
+
+getAdvanceLimit :: March Int
+getAdvanceLimit = advanceLimit <$> get

@@ -4,7 +4,7 @@ import RayMarch.Types
 import RayMarch.March
 
 smooth :: Float
-smooth = 0.1
+smooth = 0.3
 
 clamp :: Float -> (Float,Float) -> Float
 clamp x (a,b) 
@@ -18,10 +18,20 @@ mix r x y = x*(1-r)+y*r
 smin :: Float -> Float -> Float
 smin a b = let
     h = clamp (0.5+0.5*(b-a)/smooth) (0,1)
-  in mix h a b - smooth*h*(1-h)
+  in mix h b a - smooth*h*(1-h)
+
+rad :: Float -> Float
+rad x = x * pi / 180
 
 reflectOn :: Vector -> Vector -> Vector
-reflectOn v n = n<*>(-2*n`dot`v) <+> v
+reflectOn v n = norm $ n<*>(-2*n`dot`v) <+> v
+
+refractOn :: Float -> Vector -> Vector -> Maybe Vector
+refractOn r v n = let
+    d = v`dot`n
+    u = 1 - r*r*(1-d*d)
+    t = v<*>r <-> n<*>(r*d+sqrt u)
+  in if u >= 0 then Just $ norm t else Nothing
 
 black :: Color
 black = Color (0,0,0)
