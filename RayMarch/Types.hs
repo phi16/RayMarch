@@ -10,6 +10,7 @@ newtype Color = Color Float3
 type Quaternion = (Vector, Float)
 
 class Arith a where
+  (<+>) :: a -> a -> a
   (<->) :: a -> a -> a
   (<*>) :: a -> Float -> a
   (</>) :: a -> Float -> a
@@ -17,9 +18,6 @@ class Arith a where
   x <*> y = x </> (recip y)
   x </> y = x <*> (recip y)
   inv v = v <*> (-1)
-
-class Additive a where
-  (<+>) :: a -> a -> a
 
 class Arith a => Direction a where
   len :: a -> Float
@@ -37,11 +35,9 @@ infixl 7 <*>
 infixl 7 </>
 
 instance Arith Vector where
+  (Vector (a,b,c)) <+> (Vector (d,e,f)) = Vector (a+d,b+e,c+f)
   (Vector (a,b,c)) <-> (Vector (d,e,f)) = Vector (a-d,b-e,c-f)
   (Vector (a,b,c)) <*> r = Vector (a*r,b*r,c*r)
-
-instance Additive Vector where
-  (Vector (a,b,c)) <+> (Vector (d,e,f)) = Vector (a+d,b+e,c+f)
 
 instance Direction Vector where
   len (Vector (a,b,c)) = sqrt (a*a+b*b+c*c)
@@ -61,11 +57,9 @@ zero :: Vector
 zero = Vector (0,0,0)
 
 instance Arith Color where
+  (Color (a,b,c)) <+> (Color (d,e,f)) = Color (a+d,b+e,c+f)
   (Color (a,b,c)) <-> (Color (d,e,f)) = Color (a-d,b-e,c-f)
   (Color (a,b,c)) <*> r = Color (a*r,b*r,c*r)
-
-instance Additive Color where
-  (Color (a,b,c)) <+> (Color (d,e,f)) = Color (a+d,b+e,c+f)
 
 instance Each Color where
   each f (Color (a,b,c)) = Color (f a,f b,f c)
@@ -91,6 +85,7 @@ data World = World {
   distancer :: Distance,
   advancer :: Point -> Vector -> March (Maybe Color),
   effector :: Point -> Config -> Pixel -> Color -> Color,
+  viewPoint :: Point,
   advanceCount :: Int,
   advanceLimit :: Int,
   reflectCount :: Int,
@@ -104,3 +99,6 @@ type Object = Point -> Vector -> March Color
 
 getAdvanceLimit :: March Int
 getAdvanceLimit = advanceLimit <$> get
+
+getViewPoint :: March Point
+getViewPoint = viewPoint <$> get
