@@ -2,7 +2,6 @@ module RayMarch.Default.Object where
 
 import Control.Monad
 import Control.Applicative hiding ((<*>))
-import Data.Maybe
 import RayMarch.Types
 import RayMarch.Operate
 import RayMarch.March
@@ -13,9 +12,10 @@ type Vector4 = (Vector,Vector,Vector,Vector)
 rayLNRV :: Point -> Vector -> Point -> March Vector4
 rayLNRV p v l = do
   let lu = norm $ p<->l
-      vu = norm v
   nu <- normal p
+  e <- getViewPoint
   let ru = norm $ lu`reflectOn`nu
+      vu = norm $ e<->p
   return (lu,nu,ru,vu)
 
 normalDisp :: Object
@@ -83,11 +83,9 @@ mirror :: Object
 mirror p v = do
   n <- normal p
   let r = v`reflectOn`n
-  t <- reflect (p<+>r<*>0.1) r
-  return $ fromMaybe black t
+  reflect (p<+>r<*>0.1) r
 
--- glass :: Float -> Object
--- glass f p v = do
+-- refraction
 
 -- beckmann distribution
 -- heidrich-seidel

@@ -23,6 +23,9 @@ smin a b = let
 rad :: Float -> Float
 rad x = x * pi / 180
 
+infinity :: Float
+infinity = 1 / 0
+
 reflectOn :: Vector -> Vector -> Vector
 reflectOn v n = norm $ n<*>(-2*n`dot`v) <+> v
 
