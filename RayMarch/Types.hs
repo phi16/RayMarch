@@ -15,9 +15,11 @@ class Arith a where
   (<*>) :: a -> Float -> a
   (</>) :: a -> Float -> a
   inv :: a -> a
+  lerp :: Float -> a -> a -> a
   x <*> y = x </> (recip y)
   x </> y = x <*> (recip y)
   inv v = v <*> (-1)
+  lerp r a b = a<*>(1-r)<+>b<*>r
 
 class Arith a => Direction a where
   len :: a -> Float
@@ -77,15 +79,15 @@ data View = View {
 data Config = Config {
   fileName :: FilePath,
   view :: View,
-  width :: Float,
-  backGround :: Color
+  width :: Float
 }
 
 data World = World {
   distancer :: Distance,
-  advancer :: Point -> Vector -> March (Maybe Color),
+  advancer :: Point -> Vector -> March Color,
   effector :: Point -> Config -> Pixel -> Color -> Color,
   viewPoint :: Point,
+  backGround :: Color,
   advanceCount :: Int,
   advanceLimit :: Int,
   reflectCount :: Int,
@@ -102,3 +104,6 @@ getAdvanceLimit = advanceLimit <$> get
 
 getViewPoint :: March Point
 getViewPoint = viewPoint <$> get
+
+backGroundColor :: March Color
+backGroundColor = backGround <$> get

@@ -13,7 +13,7 @@ blend :: Float -> Object -> Object -> Object
 blend r a b p v = do
   t <- a p v
   u <- b p v
-  return $ t<*>(1-r) <+> u<*>r
+  return $ lerp r t u
 
 lighten :: Object -> Object -> Object
 lighten a b p v = do

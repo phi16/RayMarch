@@ -12,7 +12,7 @@ distance p = do
   l <- distancer <$> get
   return $ l p
 
-advance :: Point -> Vector -> March (Maybe Color)
+advance :: Point -> Vector -> March Color
 advance p v = do
   w <- get
   let a = advanceCount w
@@ -22,9 +22,9 @@ advance p v = do
       c <- advancer w p v
       put $ w {advanceCount = a}
       return c
-    else return Nothing
+    else backGroundColor
 
-reflect :: Point -> Vector -> March (Maybe Color)
+reflect :: Point -> Vector -> March Color
 reflect p v = do
   w <- get
   let a = advanceCount w
@@ -35,7 +35,7 @@ reflect p v = do
       c <- advancer w p v
       put $ w {advanceCount = a, reflectCount = r}
       return c
-    else return Nothing
+    else backGroundColor
 
 maxReflect :: Int -> March a -> March (Maybe a)
 maxReflect x a = do

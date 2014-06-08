@@ -10,9 +10,11 @@ import RayMarch.Default.Effector
 
 main :: IO ()
 main = runMarcher config world where
-  config = Config "out.png" testView 200 black
+  width = 600
+  config = Config "out.png" testView width
   world = defaultWorld {
     distancer = testSphere,
-    advancer = simpleAdvancer,
-    effector = noEffect
+    advancer = antiAliasedAdvancer width,
+    effector = noEffect, 
+    backGround = black
   } 
