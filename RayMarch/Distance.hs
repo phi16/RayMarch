@@ -25,7 +25,7 @@ import RayMarch.Operate
     obj p v = do
       a <- ao p v
       b <- bo p v
-      return $ lerp r a b
+      return $ lerp r b a
   in (d,obj)
 
 (<\>) :: Distance s -> Distance s -> Distance s

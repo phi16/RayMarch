@@ -44,13 +44,13 @@ phong (ka,kd,ks) b l c = ambient`lighten`diffuse`lighten`specular where
   diffuse  = alpha kd $ lambert l c
   specular = alpha ks $ phongSpecular b l
    
-blinnPhong :: Float -> Point -> Color -> Object s
-blinnPhong b l c p v = do
+blinnPhong :: (Float, Float, Float) -> Float -> Point -> Color -> Object s
+blinnPhong (ka,kd,ks) b l c p v = do
   (lu,nu,ru,vu) <- rayLNRV p v l
-  let hu = norm $ lu <+> vu
+  let hu = norm $ lu <-> vu
       d = c<*>(lu`dot`nu/2+0.5)
       s = gray $ (max 0 $ nu`dot`hu)**b
-  return $ d<+>s
+  return $ c<*>ka<+>d<*>kd<+>s<*>ks
 
 -- oren-nayer
 -- minnaert function
@@ -83,12 +83,20 @@ mirror :: Object s
 mirror p v = do
   n <- normal p
   let r = v`reflectOn`n
-  reflect (p<+>r<*>0.1) r
+  reflect (p<+>r<*>delta) r
 
 -- refraction
 
 -- beckmann distribution
--- heidrich-seidel
+
+heidrichSeidel :: Float -> Vector -> Vector -> Object s
+heidrichSeidel n d l p v = do
+  (lu,nu,_,vu) <- rayLNRV p v l
+  let du = norm d
+      tu = nu`cross`(du`cross`nu)
+      k = (lu`crossF`tu)*(vu`crossF`tu)-(lu`dot`tu)*(vu`dot`tu)
+  return $ gray $ k**n
+
 -- ward distribution
 -- cook-torrance
 

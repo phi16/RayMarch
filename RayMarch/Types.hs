@@ -55,6 +55,9 @@ dot (Vector (a,b,c)) (Vector (d,e,f)) = a*d+b*e+c*f
 cross :: Vector -> Vector -> Vector
 cross (Vector (a,b,c)) (Vector (d,e,f)) = Vector (b*f-c*e,c*d-a*f,a*e-b*d)
 
+crossF :: Vector -> Vector -> Float
+crossF x y = len $ cross x y
+
 zero :: Vector
 zero = Vector (0,0,0)
 
