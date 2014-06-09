@@ -7,6 +7,12 @@ import RayMarch.Types
 eps :: Float
 eps = 0.0001
 
+delta :: Float
+delta = 0.001
+
+infinity :: Float
+infinity = 1 / 0
+
 distance :: Point -> March (Float, Object)
 distance p = do
   l <- distancer <$> get
@@ -22,7 +28,11 @@ advance p v = do
       c <- advancer w p v
       put $ w {advanceCount = a}
       return c
-    else backGroundColor
+    else if reflectCount w /= reflectLimit w
+      then do
+        (_,o) <- distance p
+        o p v
+      else backGroundColor
 
 reflect :: Point -> Vector -> March Color
 reflect p v = do
