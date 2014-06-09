@@ -13,19 +13,19 @@ delta = 0.001
 infinity :: Float
 infinity = 1 / 0
 
-distance :: Point -> March (Float, Object)
+distance :: Point -> March s (Float, Object s)
 distance p = do
   l <- distancer <$> get
   return $ l p
 
-advance :: Point -> Vector -> March Color
-advance p v = do
+advance :: Maybe s -> Point -> Vector -> March s Color
+advance s p v = do
   w <- get
   let a = advanceCount w
   if a <= advanceLimit w
     then do
       put $ w {advanceCount = a+1}
-      c <- advancer w p v
+      c <- advancer w s p v
       put $ w {advanceCount = a}
       return c
     else if reflectCount w /= reflectLimit w
@@ -34,7 +34,7 @@ advance p v = do
         o p v
       else backGroundColor
 
-reflect :: Point -> Vector -> March Color
+reflect :: Point -> Vector -> March s Color
 reflect p v = do
   w <- get
   let a = advanceCount w
@@ -42,12 +42,12 @@ reflect p v = do
   if r <= reflectLimit w
     then do
       put $ w {advanceCount = 0, reflectCount = r+1}
-      c <- advancer w p v
+      c <- advancer w Nothing p v
       put $ w {advanceCount = a, reflectCount = r}
       return c
     else backGroundColor
 
-maxReflect :: Int -> March a -> March (Maybe a)
+maxReflect :: Int -> March s a -> March s (Maybe a)
 maxReflect x a = do
   w <- get
   let r = reflectCount w

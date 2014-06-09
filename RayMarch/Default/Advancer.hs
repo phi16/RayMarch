@@ -1,31 +1,37 @@
-module RayMarch.Default.Advancer where
+module RayMarch.Default.Advancer (
+  simpleAdvancer,
+  antiAliasedAdvancer) where
 
 import Control.Applicative hiding ((<*>))
 import RayMarch.Types
 import RayMarch.Operate
 import RayMarch.March
 
-simpleAdvancer :: Point -> Vector -> March Color
-simpleAdvancer p v = do
+simpleAdvancer :: Maybe () -> Point -> Vector -> March () Color
+simpleAdvancer s p v = do
   (d,o) <- distance p
   if d < eps
     then o p v
-    else advance (p<+>v<*>d) v
+    else advance s (p<+>v<*>d) v
 
-antiAliasedAdvancer :: Float -> Point -> Vector -> March Color
-antiAliasedAdvancer w p v = do
+data AAState = A (Dup (Float,Object AAState))
+antiAliasedAdvancer :: Float -> Maybe AAState -> Point -> Vector -> March AAState Color
+antiAliasedAdvancer w Nothing p v = do
+  u <- distance p
+  antiAliasedAdvancer w (Just (A (u,u))) p v
+antiAliasedAdvancer w (Just (A (s,t))) p v = do
   u <- getViewPoint
   let l = len $ u <-> p
-      e = 1.0 * l / w
-  (d,o) <- distance p
+      e = 0.5 * l / w
+  (d,o) <- return t -- Current
   if d+e < eps
     then o p v
     else do
-      c <- advance (p<+>v<*>(d+e)) v
-      if d < e
+      (f,_) <- return s -- Prev
+      m@(g,_) <- distance $ p<+>v<*>(d+e) -- Next
+      c <- advance (Just $ A (t,m)) (p<+>v<*>(d+e)) v
+      if d < e+eps
         then do
-          (g,_) <- distance $ p<->v<*>(d+e)
-          (f,_) <- distance $ p<+>v<*>(d+e)
           if d < g && d < f
             then do
               let r = (e-d) / (2*e)

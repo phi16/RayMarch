@@ -7,7 +7,7 @@ import RayMarch.Types
 import RayMarch.March
 import RayMarch.Quaternion
 
-runMarcher :: Config -> World -> IO ()
+runMarcher :: Config -> World s -> IO ()
 runMarcher cfg wld = savePngImage (fileName cfg) $ ImageRGB8 img where
   world = wld {viewPoint = position $ view cfg}
   w = width cfg
@@ -19,11 +19,11 @@ runMarcher cfg wld = savePngImage (fileName cfg) $ ImageRGB8 img where
       toP8 t = fromIntegral $ max 0 $ min 255 $ floor $ t*256
     in PixelRGB8 (toP8 r) (toP8 g) (toP8 b)
 
-getColor :: Config -> Pixel -> March Color
+getColor :: Config -> Pixel -> March s Color
 getColor cfg px@(x,y) = do
   w <- get
   let vw = view cfg
       p = position vw
       v = norm $ flip apply (Vector (1,x,y)) $ direction vw
-  cu <- advance p v
+  cu <- advance Nothing p v
   return $ effector w p cfg px cu

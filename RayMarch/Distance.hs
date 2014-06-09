@@ -4,19 +4,19 @@ import RayMarch.Types
 import RayMarch.Quaternion
 import RayMarch.Operate
 
-(<&>) :: Distance -> Distance -> Distance
+(<&>) :: Distance s -> Distance s -> Distance s
 (x <&> y) p = let
     a@(ad,ao) = x p
     b@(bd,bo) = y p
   in if ad > bd then a else b
 
-(<|>) :: Distance -> Distance -> Distance
+(<|>) :: Distance s -> Distance s -> Distance s
 (x <|> y) p = let
     a@(ad,ao) = x p
     b@(bd,bo) = y p
   in if ad < bd then a else b
 
-(<~>) :: Distance -> Distance -> Distance
+(<~>) :: Distance s -> Distance s -> Distance s
 (x <~> y) p = let
     (ad,ao) = x p
     (bd,bo) = y p
@@ -28,24 +28,24 @@ import RayMarch.Operate
       return $ lerp r a b
   in (d,obj)
 
-(<\>) :: Distance -> Distance -> Distance
+(<\>) :: Distance s -> Distance s -> Distance s
 (x <\> y) p = let
     a@(ad,ao) = x p
     b@(bd,bo) = y p
   in (ad`max`(-bd),ao)
 
-invert :: Distance -> Distance
+invert :: Distance s -> Distance s
 invert d p = let
     (l,o) = d p
   in (-l,o)
  
-scale :: Float -> Distance -> Distance
+scale :: Float -> Distance s -> Distance s
 scale s d p = let
     (l,o) = d (p </> s)  
   in (l*s, o)
 
-transpose :: Vector -> Distance -> Distance
+transpose :: Vector -> Distance s -> Distance s
 transpose v d p = d (p <-> v)
 
-rotate :: Quaternion -> Distance -> Distance
+rotate :: Quaternion -> Distance s -> Distance s
 rotate q d p = d $ apply (inverse q) p
