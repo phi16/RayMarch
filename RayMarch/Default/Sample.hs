@@ -11,7 +11,7 @@ import RayMarch.Default.Object
 light :: Point
 light = Vector (0,5,5)
 
-testSphere :: Distance
+testSphere :: Distance s
 testSphere = (sp <|> bx) <|> ground <|> bound where
   sp = transpose (Vector (5,0.5,1)) $ sphere 1 $ surface $ Color (1,0.5,0)
   bx = transpose (Vector (5,-0.5,1)) $ 

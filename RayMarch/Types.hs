@@ -82,9 +82,9 @@ data Config = Config {
   width :: Float
 }
 
-data World = World {
-  distancer :: Distance,
-  advancer :: Point -> Vector -> March Color,
+data World s = World {
+  distancer :: Distance s,
+  advancer :: Maybe s -> Point -> Vector -> March s Color,
   effector :: Point -> Config -> Pixel -> Color -> Color,
   viewPoint :: Point,
   backGround :: Color,
@@ -94,16 +94,16 @@ data World = World {
   reflectLimit :: Int
 }
 
-type March = State World
+type March s = State (World s)
 
-type Distance = Point -> (Float, Object)
-type Object = Point -> Vector -> March Color
+type Distance s = Point -> (Float, Object s)
+type Object s = Point -> Vector -> March s Color
 
-getAdvanceLimit :: March Int
+getAdvanceLimit :: March s Int
 getAdvanceLimit = advanceLimit <$> get
 
-getViewPoint :: March Point
+getViewPoint :: March s Point
 getViewPoint = viewPoint <$> get
 
-backGroundColor :: March Color
+backGroundColor :: March s Color
 backGroundColor = backGround <$> get
