@@ -33,6 +33,11 @@ import RayMarch.Operate
     a@(ad,ao) = x p
     b@(bd,bo) = y p
   in (ad`max`(-bd),ao)
+
+invert :: Distance -> Distance
+invert d p = let
+    (l,o) = d p
+  in (-l,o)
  
 scale :: Float -> Distance -> Distance
 scale s d p = let
