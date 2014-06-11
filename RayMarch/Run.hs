@@ -7,6 +7,8 @@ import RayMarch.Types
 import RayMarch.March
 import RayMarch.Quaternion
 
+import Debug.Trace (trace)
+
 runMarcher :: Config -> World s -> IO ()
 runMarcher cfg wld = savePngImage (fileName cfg) $ ImageRGB8 img where
   world = wld {viewPoint = position $ view cfg}
@@ -25,5 +27,5 @@ getColor cfg px@(x,y) = do
   let vw = view cfg
       p = position vw
       v = norm $ flip apply (Vector (1,x,y)) $ direction vw
-  cu <- advance Nothing p v
+  cu <- (if abs x < 0.001 then trace (show (100-(y*4/3+0.5)*100) ++ "%") else id) $ advance Nothing p v
   return $ effector w p cfg px cu

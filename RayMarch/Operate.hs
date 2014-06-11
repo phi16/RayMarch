@@ -5,6 +5,15 @@ import RayMarch.March
 
 type Dup a = (a,a)
 
+eps :: Float
+eps = 0.0001
+
+delta :: Float
+delta = 0.001
+
+infinity :: Float
+infinity = 1 / 0
+
 smooth :: Float
 smooth = 0.3
 

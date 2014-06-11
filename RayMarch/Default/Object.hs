@@ -2,6 +2,7 @@ module RayMarch.Default.Object where
 
 import Control.Monad
 import Control.Applicative hiding ((<*>))
+import Control.Monad.Trans.State
 import RayMarch.Types
 import RayMarch.Operate
 import RayMarch.March
@@ -76,7 +77,28 @@ coloredAmbient k d c p v = do
       Nothing -> c <*> (2**(-i))
   return $ (<*>k) $ foldl1 (<+>) aos
 
--- soft shadow 
+softShadow :: Float -> Vector -> Object s
+softShadow k l p v = do
+  (lu,_,_,_) <- rayLNRV p v l
+  w <- get
+  let r = advanceLimit w
+      u = len $ p<->l
+      march x p v l
+        | x >= r = return 1.0
+        | otherwise = do
+          (d,_) <- distance p
+          if d+l >= u
+            then return 1.0
+            else if d < eps
+              then return 0.0
+              else do
+                m <- march (x+1) (p<+>v<*>d) v (l+d)
+                return $ min m (k*d/l)
+  let iu = inv lu
+      pu = p<+>iu<*>delta
+  t <- march 0 pu iu delta
+  return $ gray t
+
 -- subsurface scattering
 
 mirror :: Object s
