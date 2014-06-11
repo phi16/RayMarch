@@ -4,15 +4,6 @@ import Control.Applicative
 import Control.Monad.Trans.State
 import RayMarch.Types
 
-eps :: Float
-eps = 0.0001
-
-delta :: Float
-delta = 0.001
-
-infinity :: Float
-infinity = 1 / 0
-
 distance :: Point -> March s (Float, Object s)
 distance p = do
   l <- distancer <$> get

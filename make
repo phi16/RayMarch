@@ -1,6 +1,6 @@
 if cabal install ; then
   echo "[Start]"
-  RayMarch
+  time RayMarch
   echo "[Done]"
   gqview out.png
 fi
