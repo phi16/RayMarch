@@ -12,7 +12,7 @@ light :: Point
 light = Vector (0,5,5)
 
 testSphere :: Distance s
-testSphere = (sp <|> gsk) <|> ground <|> bound where
+testSphere = (sp <|> spg) <|> ground <|> bound where
   sp = transpose (Vector (5,0.5,1)) $ sphere 1 $ metalic $ Color (1,0.5,0)
   bx = transpose (Vector (5,-0.5,1)) $ 
        rotate (xRotate (rad 40)`prod`yRotate (rad 60)) $ 
@@ -39,7 +39,12 @@ gasket = foldFractal 2 (Vector (1,1,1)) fs es where
   es = [(-1,-1,-1,-1),(-1,1,1,-1),(1,-1,1,-1),(1,1,-1,-1)]
 
 sponge :: Object s -> Distance s
-sponge = foldFractal 3 (Vector (0,1,1)) fs es where
-  fs = [(1,0,-1,0),(-1,0,-1,0),(0,1,-1,0),(0,-1,-1,0),
-        (1,-1,0,0),(-1,-1,0,0),(3,0,0,-1),(-3,0,0,-1)]
-  es = [(1,0,0,-1),(-1,0,0,-1),(0,1,0,-1),(0,-1,0,-1),(0,0,1,-1),(0,0,-1,-1)]
+sponge = areaFractal 3 xs where
+  ps = map Vector [
+    (-1,-1,-1),(-1,-1,1),(-1,1,-1),(-1,1,1),
+    (1,-1,-1),(1,-1,1),(1,1,-1),(1,1,1),
+    (0,1,1),(0,-1,-1),(0,-1,1),(0,1,-1),
+    (1,0,1),(-1,0,-1),(-1,0,1),(1,0,-1),
+    (1,1,0),(-1,-1,0),(-1,1,0),(1,-1,0)]
+  xs = for ps $ \v ->
+    (transpose (v<*>(2/3)) $ box (Vector (1,1,1) <*> (1/3+delta)) $ undefined, v)

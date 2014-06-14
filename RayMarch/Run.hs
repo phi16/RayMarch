@@ -13,7 +13,7 @@ runMarcher :: Config -> World s -> IO ()
 runMarcher cfg wld = savePngImage (fileName cfg) $ ImageRGB8 img where
   world = wld {viewPoint = position $ view cfg}
   w = width cfg
-  h = w * ratio (view cfg) 
+  h = w * ratio (view cfg)
   rt = 0.5*h/w
   img = flip ((flip generateImage) (floor w)) (floor h) $ \x y ->let 
       px = (fromIntegral x/w-0.5,-(fromIntegral y/w-rt))

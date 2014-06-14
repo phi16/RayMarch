@@ -18,7 +18,7 @@ plane v d o p = (p`dot`v+d, o)
 fractal :: Float -> Point -> (Point -> Point) -> (Point -> Float) -> Object s -> Distance s
 fractal z x f e o p = (e point * z**(-count), o) where
   (point,count) = until end (expand . f *** succ) (p,0)
-  end (p,c) = c >= 6
+  end (p,c) = c >= 2
   expand p = (p<->x)<*>z<+>x
 
 type Plane = (Float,Float,Float,Float)
@@ -31,3 +31,11 @@ foldFractal z x fs es o = fractal z x f e o where
   f p = foldr (\s p -> if upper s p >= 0 then refl s p else p) p fs
   refl s@(a,b,c,d) p@(Vector (x,y,z)) = p<->(Vector (a,b,c))<*>(a*x+b*y+c*z+d)</>(a*a+b*b+c*c)<*>2
   e p = maximum $ map (flip upper p) es
+
+areaFractal :: Float -> [(Distance s, Point)] -> Object s -> Distance s
+areaFractal z xs o p = (dist * z**(-fromIntegral count+1), o) where
+  count = 5
+  (_,(_,dist)) = iterateN count (expand . proc) (p, undefined)
+  expand (p,(x,d)) = ((p<->x)<*>z<+>x, (x,d))
+  proc (p,_) = (p, foldr run (p,infinity) xs) where
+    run (f,x) (u,d) = let l = fst $ f p in if l < d then (x,l) else (u,d)
