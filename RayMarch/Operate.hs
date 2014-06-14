@@ -17,6 +17,13 @@ infinity = 1 / 0
 smooth :: Float
 smooth = 0.3
 
+for :: [a] -> (a -> b) -> [b]
+for = flip map
+
+iterateN :: Int -> (a -> a) -> a -> a
+iterateN 0 f x = x
+iterateN c f x = iterateN (c-1) f (f x)
+
 clamp :: Float -> (Float,Float) -> Float
 clamp x (a,b) 
   | x < a = a
