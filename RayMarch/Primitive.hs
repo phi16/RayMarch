@@ -34,7 +34,7 @@ foldFractal z x fs es o = fractal z x f e o where
 
 areaFractal :: Float -> [(Distance s, Point)] -> Object s -> Distance s
 areaFractal z xs o p = (dist * z**(-fromIntegral count+1), o) where
-  count = 5
+  count = 4
   (_,(_,dist)) = iterateN count (expand . proc) (p, undefined)
   expand (p,(x,d)) = ((p<->x)<*>z<+>x, (x,d))
   proc (p,_) = (p, foldr run (p,infinity) xs) where
