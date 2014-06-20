@@ -72,10 +72,19 @@ instance Each Color where
 
 type Pixel = (Float,Float)
 
+instance Arith (Float,Float) where
+  (a,b) <+> (c,d) = (a+c,b+d)
+  (a,b) <-> (c,d) = (a-c,b-d)
+  (a,b) <*> r = (a*r,b*r)
+
+instance Direction (Float,Float) where
+  len (a,b) = sqrt $ a*a+b*b
+  unit = (1,0)
+
 data View = View {
   position :: Point,
   direction :: Quaternion,
-  fov :: Float,
+  lens :: Pixel -> Vector,
   ratio :: Float
 }
 
@@ -101,6 +110,7 @@ type March s = State (World s)
 
 type Distance s = Point -> (Float, Object s)
 type Object s = Point -> Vector -> March s Color
+type Field = (Float,Float) -> Float
 
 getAdvanceLimit :: March s Int
 getAdvanceLimit = advanceLimit <$> get
@@ -110,3 +120,4 @@ getViewPoint = viewPoint <$> get
 
 backGroundColor :: March s Color
 backGroundColor = backGround <$> get
+

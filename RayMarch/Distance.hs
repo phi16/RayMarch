@@ -49,3 +49,15 @@ transpose v d p = d (p <-> v)
 
 rotate :: Quaternion -> Distance s -> Distance s
 rotate q d p = d $ apply (inverse q) p
+
+displacement :: (Point -> Float) -> Distance s -> Distance s
+displacement f d p = let (l,o) = d p in (l+f p,o)
+
+repeatX :: Float -> Distance s -> Distance s
+repeatX x d (Vector (p,q,r)) = d $ Vector (p`fmod`x-x/2,q,r)
+
+repeatY :: Float -> Distance s -> Distance s
+repeatY y d (Vector (p,q,r)) = d $ Vector (p,q`fmod`y-y/2,r)
+
+repeatZ :: Float -> Distance s -> Distance s
+repeatZ z d (Vector (p,q,r)) = d $ Vector (p,q,r`fmod`z-z/2)

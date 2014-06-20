@@ -9,11 +9,24 @@ sphere r o p = (len p - r, o)
 
 box :: Vector -> Object s -> Distance s
 box v o p = let
-    d = each abs p <-> v
-  in (0`min`fold max d + len (each (max 0) d), o)
+    d = each abs p <-> v 
+  in (0`min`fold max d + len (each (max 0) d) - delta, o)
 
 plane :: Vector -> Float -> Object s -> Distance s
 plane v d o p = (p`dot`v+d, o)
+
+thickness :: Float -> ((Float,Float) -> Float) -> (Float,Float) -> Float
+thickness w f m = f m - w
+
+push :: (Pixel -> Float) -> Float -> Object s -> Distance s
+push f d o (Vector (x,y,z)) = let
+    r = f (x,y)
+    b = abs z - d
+  in (,o) $ case (r < 0, abs z > d) of
+    (True,True) ->   b
+    (True,False) ->  r`max`b
+    (False,True) ->  sqrt $ b*b+r*r
+    (False,False) -> r
 
 fractal :: Float -> Point -> (Point -> Point) -> (Point -> Float) -> Object s -> Distance s
 fractal z x f e o p = (e point * z**(-count), o) where
