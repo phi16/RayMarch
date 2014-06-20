@@ -1,4 +1,8 @@
-module RayMarch.Default.Sample where
+module RayMarch.Default.Sample (
+  testSphere,
+  testView,
+  gasket,
+  sponge) where
 
 import RayMarch.Types
 import RayMarch.Primitive

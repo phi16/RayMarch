@@ -23,9 +23,10 @@ antiAliasedAdvancer w (Just (A (s,t))) p v = do
   u <- getViewPoint
   let l = len $ u <-> p
       e = 0.5 * l / w
+      y = p <+> inv v <*> e
   (d,o) <- return t -- Current
   if d+e < eps
-    then o p v
+    then o y v
     else do
       (f,_) <- return s -- Prev
       m@(g,_) <- distance $ p<+>v<*>(d+e) -- Next
@@ -35,7 +36,7 @@ antiAliasedAdvancer w (Just (A (s,t))) p v = do
           if d < g && d < f
             then do
               let r = (e-d) / (2*e)
-              q <- o p v
+              q <- o y v
               return $ lerp r c q
             else return c
         else return c

@@ -1,5 +1,6 @@
 module RayMarch.Operate where
 
+import Data.Fixed (mod')
 import RayMarch.Types
 import RayMarch.March
 
@@ -16,6 +17,9 @@ infinity = 1 / 0
 
 smooth :: Float
 smooth = 0.3
+
+fmod :: Float -> Float -> Float
+fmod = mod'
 
 for :: [a] -> (a -> b) -> [b]
 for = flip map

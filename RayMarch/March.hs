@@ -17,7 +17,7 @@ advance s p v = do
     then do
       put $ w {advanceCount = a+1}
       c <- advancer w s p v
-      put $ w {advanceCount = a}
+      put w
       return c
     else if reflectCount w /= reflectLimit w
       then do
@@ -28,13 +28,13 @@ advance s p v = do
 reflect :: Point -> Vector -> March s Color
 reflect p v = do
   w <- get
-  let a = advanceCount w
-      r = reflectCount w
+  let r = reflectCount w
+      n = w {advanceCount = 0, reflectCount = r+1 {- viewPoint = p -} }
   if r <= reflectLimit w
     then do
-      put $ w {advanceCount = 0, reflectCount = r+1}
-      c <- advancer w Nothing p v
-      put $ w {advanceCount = a, reflectCount = r}
+      put n
+      c <- advancer n Nothing p v
+      put w
       return c
     else backGroundColor
 
@@ -47,6 +47,6 @@ maxReflect x a = do
     then do
       put $ w {reflectCount = r+1, reflectLimit = x}
       t <- a
-      put $ w {reflectCount = r, reflectLimit = u}
+      put w
       return $ Just t
     else return Nothing

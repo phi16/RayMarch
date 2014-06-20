@@ -25,7 +25,8 @@ getColor :: Config -> Pixel -> March s Color
 getColor cfg px@(x,y) = do
   w <- get
   let vw = view cfg
+      l = lens vw
       p = position vw
-      v = norm $ flip apply (Vector (1,x,y)) $ direction vw
+      v = norm $ flip apply (l px) $ direction vw
   cu <- (if abs x < 0.001 then trace (show (100-(y*4/3+0.5)*100) ++ "%") else id) $ advance Nothing p v
   return $ effector w p cfg px cu

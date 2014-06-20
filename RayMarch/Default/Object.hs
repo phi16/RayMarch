@@ -122,5 +122,14 @@ heidrichSeidel n d l p v = do
 -- ward distribution
 -- cook-torrance
 
+fog :: Float -> Color -> Vector -> Color -> Object s -> Object s
+fog x c s d o p v = do
+  e <- getViewPoint
+  let l = len $ e<->p
+      m = exp $ -l * x
+      i = max 0 $ inv v`dot`norm s
+  u <- o p v
+  return $ lerp m (lerp i c d) u
+
 emission :: Color -> Object s
 emission c p v = return c
