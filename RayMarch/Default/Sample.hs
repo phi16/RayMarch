@@ -10,6 +10,7 @@ import RayMarch.Distance
 import RayMarch.Quaternion
 import RayMarch.Object
 import RayMarch.Operate
+import RayMarch.Default.Lens
 import RayMarch.Default.Object
 
 light :: Point
@@ -27,13 +28,13 @@ testSphere = (sp <|> spg) <|> ground <|> bound where
         scale 0.7 $ sponge $ metalic $ Color (0,0,1)
   ground = plane (Vector (0,0,1)) 0 $ metalic $ Color (0,1,0)
   bound = invert $ (sphere 30) $ emission $ Color (0.5,1,1)
-  metalic c = (alpha 0.5 mirror`lighten`phong (0.0,1.0,0.5) 5.0 light c)`darken`ambientOcclusion 2.0 0.1
+  metalic c = (alpha 0.5 mirror`lighten`phong (0.0,1.0,0.5) 5.0 light c)`darken`(alpha 0.5 $ ambientOcclusion 2.0 0.1`lighten`softShadow 8.0 light)
 
 testView :: View
 testView = View {
   position = Vector (0,0,1),
   direction = defQ,
-  fov = 60.0,
+  lens = defaultLens,
   ratio = 0.75
 }
 
