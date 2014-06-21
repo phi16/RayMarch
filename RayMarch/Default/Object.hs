@@ -22,7 +22,7 @@ rayLNRV p v l = do
 normalDisp :: Object s
 normalDisp p v = do
   Vector (r,g,b) <- normal p
-  return $ Color (r/2+0.5,g/2+0.5,b/2+0.5)
+  return $ Color (r,g,b)</>2<+>gray 0.5
 
 lambert :: Point -> Color -> Object s
 lambert l c p v = do
@@ -115,9 +115,9 @@ heidrichSeidel :: Float -> Vector -> Vector -> Object s
 heidrichSeidel n d l p v = do
   (lu,nu,_,vu) <- rayLNRV p v l
   let du = norm d
-      tu = nu`cross`(du`cross`nu)
+      tu = norm $ nu`cross`(du`cross`nu)
       k = (lu`crossF`tu)*(vu`crossF`tu)-(lu`dot`tu)*(vu`dot`tu)
-  return $ gray $ k**n
+  return $ gray $ max 0 k**n
 
 -- ward distribution
 -- cook-torrance
@@ -130,6 +130,13 @@ fog x c s d o p v = do
       i = max 0 $ inv v`dot`norm s
   u <- o p v
   return $ lerp m (lerp i c d) u
+
+rainbow :: Float -> Vector -> (Color -> Object s) -> Object s
+rainbow f l o p v = do
+  n <- normal p
+  let s = (v`crossF`n + (norm l)`dot`n)/2 + f
+      c = Color (sin(s*pi),sin(s*pi+pi*2/3),sin(s*pi-pi*2/3))
+  o ((c<+>white)</>2) p v
 
 emission :: Color -> Object s
 emission c p v = return c

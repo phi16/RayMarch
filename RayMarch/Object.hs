@@ -24,8 +24,8 @@ lighten a b p v = do
 darken :: Object s -> Object s -> Object s
 darken a b p v = do
   Color (tr,tg,tb) <- a p v
-  Color (ur,ug,ib) <- b p v
-  return $ Color (tr*ur,tg*ug,tb*ib)
+  Color (ur,ug,ub) <- b p v
+  return $ Color (tr*ur,tg*ug,tb*ub)
 
 alpha :: Float -> Object s -> Object s
 alpha r o p v = do
