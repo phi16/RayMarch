@@ -15,19 +15,6 @@ box v o p = let
 plane :: Vector -> Float -> Object s -> Distance s
 plane v d o p = (p`dot`v+d, o)
 
-thickness :: Float -> ((Float,Float) -> Float) -> (Float,Float) -> Float
-thickness w f m = f m - w
-
-push :: (Pixel -> Float) -> Float -> Object s -> Distance s
-push f d o (Vector (x,y,z)) = let
-    r = f (x,y)
-    b = abs z - d
-  in (,o) $ case (r < 0, abs z > d) of
-    (True,True) ->   b
-    (True,False) ->  r`max`b
-    (False,True) ->  sqrt $ b*b+r*r
-    (False,False) -> r
-
 fractal :: Float -> Point -> (Point -> Point) -> (Point -> Float) -> Object s -> Distance s
 fractal z x f e o p = (e point * z**(-count), o) where
   (point,count) = until end (expand . f *** succ) (p,0)
@@ -52,3 +39,25 @@ areaFractal z xs o p = (dist * z**(-fromIntegral count+1), o) where
   expand (p,(x,d)) = ((p<->x)<*>z<+>x, (x,d))
   proc (p,_) = (p, foldr run (p,infinity) xs) where
     run (f,x) (u,d) = let l = fst $ f p in if l < d then (x,l) else (u,d)
+
+circle :: Float -> Field
+circle r p = len p - r 
+
+rect :: (Float,Float) -> Field
+rect v p = let
+    d = each abs p <-> v 
+  in 0`min`fold max d + len (each (max 0) d) - delta
+
+thickness :: Float -> Field -> Field
+thickness w f m = f m - w
+
+push :: Field -> Float -> Object s -> Distance s
+push f d o (Vector (x,y,z)) = let
+    r = f (x,y)
+    b = abs z - d
+  in (,o) $ case (r < 0, abs z > d) of
+    (True,True) ->   b
+    (True,False) ->  r`max`b
+    (False,True) ->  sqrt $ b*b+r*r
+    (False,False) -> r
+

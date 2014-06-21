@@ -81,6 +81,10 @@ instance Direction (Float,Float) where
   len (a,b) = sqrt $ a*a+b*b
   unit = (1,0)
 
+instance Each (Float,Float) where
+  each f (a,b) = (f a,f b)
+  fold f (a,b) = f a b
+
 data View = View {
   position :: Point,
   direction :: Quaternion,
