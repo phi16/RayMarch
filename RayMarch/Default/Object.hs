@@ -79,7 +79,7 @@ coloredAmbient k d c p v = do
 
 softShadow :: Float -> Vector -> Object s
 softShadow k l p v = do
-  (lu,_,_,_) <- rayLNRV p v l
+  (lu,nu,_,_) <- rayLNRV p v l
   w <- get
   let r = advanceLimit w
       u = len $ p<->l
@@ -93,10 +93,10 @@ softShadow k l p v = do
               then return 0.0
               else do
                 m <- march (x+1) (p<+>v<*>d) v (l+d)
-                return $ min m (k*d/l)
+                return $ min m ((k*d/l)^2)
   let iu = inv lu
       pu = p<+>iu<*>delta
-  t <- march 0 pu iu delta
+  t <- march 0 pu iu delta 
   return $ gray t
 
 -- subsurface scattering
@@ -108,16 +108,18 @@ mirror p v = do
   reflect (p<+>r<*>delta) r
 
 -- refraction
-
 -- beckmann distribution
 
-heidrichSeidel :: Float -> Vector -> Vector -> Object s
-heidrichSeidel n d l p v = do
+heidrichSeidel :: Float -> Float -> Vector -> Vector -> Object s
+heidrichSeidel n m d l p v = do
   (lu,nu,_,vu) <- rayLNRV p v l
   let du = norm d
+      c p q = p`dot`q
+      s p q = p`crossF`q
       tu = norm $ nu`cross`(du`cross`nu)
-      k = (lu`crossF`tu)*(vu`crossF`tu)-(lu`dot`tu)*(vu`dot`tu)
-  return $ gray $ max 0 k**n
+      k = c lu tu*c vu tu + s lu tu*s vu tu
+  r <- phongSpecular n l p v
+  return $ r<*>(max 0 k**m)
 
 -- ward distribution
 -- cook-torrance
@@ -134,7 +136,7 @@ fog x c s d o p v = do
 rainbow :: Float -> Vector -> (Color -> Object s) -> Object s
 rainbow f l o p v = do
   n <- normal p
-  let s = (v`crossF`n + (norm l)`dot`n)/2 + f
+  let s = (v`crossF`n + (norm l)`dot`n) + f
       c = Color (sin(s*pi),sin(s*pi+pi*2/3),sin(s*pi-pi*2/3))
   o ((c<+>white)</>2) p v
 
