@@ -136,7 +136,7 @@ fog x c s d o p v = do
 rainbow :: Float -> Vector -> (Color -> Object s) -> Object s
 rainbow f l o p v = do
   n <- normal p
-  let s = (v`crossF`n + (norm l)`dot`n)/2 + f
+  let s = (v`crossF`n + (norm l)`dot`n) + f
       c = Color (sin(s*pi),sin(s*pi+pi*2/3),sin(s*pi-pi*2/3))
   o ((c<+>white)</>2) p v
 
