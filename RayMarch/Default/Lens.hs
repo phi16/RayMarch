@@ -1,6 +1,7 @@
 module RayMarch.Default.Lens where
 
 import RayMarch.Types
+import RayMarch.Operate
 
 defaultLens :: Pixel -> Vector
 defaultLens (x,y) = Vector (1,x,y)
@@ -11,5 +12,5 @@ fisheyeLens f p = let
     s = sqrt $ x^2+y^2
     a = pi/2*s
   in if s < eps
-       then (1,0,0)
+       then Vector (1,0,0)
        else Vector (cos a, sin a*x/s, sin a*y/s)

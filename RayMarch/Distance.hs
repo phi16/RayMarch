@@ -61,3 +61,11 @@ repeatY y d (Vector (p,q,r)) = d $ Vector (p,q`fmod`y-y/2,r)
 
 repeatZ :: Float -> Distance s -> Distance s
 repeatZ z d (Vector (p,q,r)) = d $ Vector (p,q,r`fmod`z-z/2)
+
+none :: Distance s
+none p = (infinity, error "None")
+
+fusion :: (a -> Distance s) -> [a] -> Distance s
+fusion f [] = none
+fusion f [x] = f x
+fusion f (x:xs) = f x <|> fusion f xs

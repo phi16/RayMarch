@@ -64,18 +64,19 @@ ambientOcclusion k d p v = do
     return $ 2**(-i)*min 1 (i*d-dist)
   return $ gray $ clamp (1-k*sum aos) (0,1)
 
-coloredAmbient :: Float -> Float -> Color -> Object s
-coloredAmbient k d c p v = do
+coloredAmbient :: Float -> Color -> Object s
+coloredAmbient d c p v = do
   n <- normal p
   aos <-sequence $ flip map [1..5] $ \i -> do
     (dist,o) <- distance $ p<->n<*>i<*>d
     let pi = p<+>v<*>dist
         vi = norm $ pi<->p
+        b = (2**) $ if i == 5 then -4 else -i
     e <- maxReflect 1 $ o pi vi 
     return $ case e of
-      Just t -> t <*> (2**(-i)*min 1 (i*d-dist))
-      Nothing -> c <*> (2**(-i))
-  return $ (<*>k) $ foldl1 (<+>) aos
+      Just t -> t <*> (b*clamp (i*d-dist) (0,1))
+      Nothing -> c <*> b
+  return $ foldl1 (<+>) aos
 
 softShadow :: Float -> Vector -> Object s
 softShadow k l p v = do
