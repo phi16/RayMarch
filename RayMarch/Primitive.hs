@@ -10,7 +10,7 @@ sphere r o p = (len p - r, o)
 box :: Vector -> Object s -> Distance s
 box v o p = let
     d = each abs p <-> v 
-  in (0`min`fold max d + len (each (max 0) d) - delta, o)
+  in (0`min`fold max d + len (each (max 0) d) - delta*10, o)
 
 plane :: Vector -> Float -> Object s -> Distance s
 plane v d o p = (p`dot`v+d, o)
@@ -47,6 +47,10 @@ rect :: (Float,Float) -> Field
 rect v p = let
     d = each abs p <-> v 
   in 0`min`fold max d + len (each (max 0) d) - delta
+
+gear :: Int -> Float -> Float -> Field
+gear t b r p@(x,y) = len p - r - b*d/2 where
+  d = 1 + sin (fromIntegral t * atan2 y x)
 
 thickness :: Float -> Field -> Field
 thickness w f m = f m - w

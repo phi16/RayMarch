@@ -21,9 +21,11 @@ executable RayMarch
   -- other-extensions:    
   build-depends:       base >=4.6 && <4.7,
                        transformers >= 0.4,
-                       JuicyPixels >= 3.1.5
+                       JuicyPixels >= 3.1.5,
+                       random >= 1.0
   -- hs-source-dirs:      
   default-language:    Haskell2010
   default-extensions:  TupleSections,
-                       FlexibleInstances
+                       FlexibleInstances,
+                       OverlappingInstances
   ghc-options:         -O3 -funfolding-use-threshold=100 -threaded 

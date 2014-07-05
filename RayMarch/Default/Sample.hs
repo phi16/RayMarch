@@ -10,13 +10,16 @@ import RayMarch.Distance
 import RayMarch.Quaternion
 import RayMarch.Object
 import RayMarch.Operate
+import RayMarch.Default.Lens
 import RayMarch.Default.Object
 
 light :: Point
 light = Vector (0,5,5)
 
 testSphere :: Distance s
-testSphere = (sp <|> spg) <|> ground <|> bound where
+testSphere =(sp <|> bx) <|> ground <|> bound where
+  eFog = fog 0.03 (Color (0.3,0.7,1.0)) light (Color (1.2,0.8,0.5))
+  sFog = fog 0.03 (Color (0.3,0.7,1.0)) (inv light) (Color (1.2,0.8,0.5))
   sp = transpose (Vector (5,0.5,1)) $ sphere 1 $ metalic $ Color (1,0.5,0)
   bx = transpose (Vector (5,-0.5,1)) $ 
        rotate (xRotate (rad 40)`prod`yRotate (rad 60)) $ 
@@ -26,14 +29,14 @@ testSphere = (sp <|> spg) <|> ground <|> bound where
         rotate (xRotate (rad 40)`prod`yRotate (rad 60)) $
         scale 0.7 $ sponge $ metalic $ Color (0,0,1)
   ground = plane (Vector (0,0,1)) 0 $ metalic $ Color (0,1,0)
-  bound = invert $ (sphere 30) $ emission $ Color (0.5,1,1)
-  metalic c = (alpha 0.5 mirror`lighten`phong (0.0,1.0,0.5) 5.0 light c)`darken`ambientOcclusion 2.0 0.1
+  bound = invert $ (sphere 30) $ sFog $ emission $ Color (0.5,1,1)
+  metalic c = eFog $ (alpha 0.5 mirror`lighten`phong (0.0,1.0,0.5) 5.0 light c)`darken`ambientOcclusion 2.0 0.1
 
 testView :: View
 testView = View {
   position = Vector (0,0,1),
   direction = defQ,
-  fov = 60.0,
+  lens = defaultLens,
   ratio = 0.75
 }
 

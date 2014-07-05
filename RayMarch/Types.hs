@@ -2,6 +2,7 @@ module RayMarch.Types where
 
 import Control.Monad.Trans.State
 import Control.Applicative hiding ((<*>))
+import System.Random
 
 type Float3 = (Float, Float, Float)
 newtype Vector = Vector Float3
@@ -49,8 +50,19 @@ instance Each Vector where
   each f (Vector (a,b,c)) = Vector (f a,f b,f c)
   fold f (Vector (a,b,c)) = f (f a b) c
 
+instance Random Vector where
+  randomR (Vector (a,b,c), Vector (d,e,f)) g = let
+      (x,xs) = randomR (a,d) g
+      (y,ys) = randomR (b,e) xs
+      (z,zs) = randomR (c,f) ys
+    in (Vector (x,y,z),zs)
+  random g = randomR (Vector (0,0,0),Vector (1,1,1)) g
+
 dot :: Vector -> Vector -> Float
 dot (Vector (a,b,c)) (Vector (d,e,f)) = a*d+b*e+c*f
+
+dotP :: Vector -> Vector -> Float
+dotP a b = max 0 $ a`dot`b
 
 cross :: Vector -> Vector -> Vector
 cross (Vector (a,b,c)) (Vector (d,e,f)) = Vector (b*f-c*e,c*d-a*f,a*e-b*d)
@@ -84,6 +96,16 @@ instance Direction (Float,Float) where
 instance Each (Float,Float) where
   each f (a,b) = (f a,f b)
   fold f (a,b) = f a b
+
+instance Random (Float,Float) where
+  randomR ((a,b),(c,d)) g = let
+      (x,xs) = randomR (a,c) g
+      (y,ys) = randomR (b,d) xs
+    in ((x,y),ys)
+  random g = let
+      (x,xs) = random g
+      (y,ys) = random xs
+    in ((x,y),ys)
 
 data View = View {
   position :: Point,

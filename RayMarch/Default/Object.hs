@@ -27,7 +27,7 @@ normalDisp p v = do
 lambert :: Point -> Color -> Object s
 lambert l c p v = do
   (lu,nu,_,_) <- rayLNRV p v l
-  return $ c<*>(max 0 $ lu`dot`nu)
+  return $ c<*>(lu`dotP`nu)
 
 halfLambert :: Point -> Color -> Object s
 halfLambert l c p v = do
@@ -37,7 +37,7 @@ halfLambert l c p v = do
 phongSpecular :: Float -> Point -> Object s
 phongSpecular b l p v = do
   (_,_,ru,vu) <- rayLNRV p v l
-  return $ gray $ (max 0 $ ru`dot`vu)**b
+  return $ gray $ (ru`dotP`vu)**b
 
 phong :: (Float, Float, Float) -> Float -> Point -> Color -> Object s
 phong (ka,kd,ks) b l c = ambient`lighten`diffuse`lighten`specular where
@@ -50,7 +50,7 @@ blinnPhong (ka,kd,ks) b l c p v = do
   (lu,nu,ru,vu) <- rayLNRV p v l
   let hu = norm $ lu <-> vu
       d = c<*>(lu`dot`nu/2+0.5)
-      s = gray $ (max 0 $ nu`dot`hu)**b
+      s = gray $ (nu`dotP`hu)**b
   return $ c<*>ka<+>d<*>kd<+>s<*>ks
 
 -- oren-nayer
@@ -64,18 +64,19 @@ ambientOcclusion k d p v = do
     return $ 2**(-i)*min 1 (i*d-dist)
   return $ gray $ clamp (1-k*sum aos) (0,1)
 
-coloredAmbient :: Float -> Float -> Color -> Object s
-coloredAmbient k d c p v = do
+coloredAmbient :: Float -> Color -> Object s
+coloredAmbient d c p v = do
   n <- normal p
   aos <-sequence $ flip map [1..5] $ \i -> do
     (dist,o) <- distance $ p<->n<*>i<*>d
     let pi = p<+>v<*>dist
         vi = norm $ pi<->p
+        b = (2**) $ if i == 5 then -4 else -i
     e <- maxReflect 1 $ o pi vi 
     return $ case e of
-      Just t -> t <*> (2**(-i)*min 1 (i*d-dist))
-      Nothing -> c <*> (2**(-i))
-  return $ (<*>k) $ foldl1 (<+>) aos
+      Just t -> t <*> (b*clamp (i*d-dist) (0,1))
+      Nothing -> c <*> b
+  return $ foldl1 (<+>) aos
 
 softShadow :: Float -> Vector -> Object s
 softShadow k l p v = do
@@ -108,7 +109,15 @@ mirror p v = do
   reflect (p<+>r<*>delta) r
 
 -- refraction
--- beckmann distribution
+
+beckmann :: Float -> Vector -> Object s
+beckmann m l p v = do
+  (lu,nu,_,vu) <- rayLNRV p v l
+  let hu = norm $ lu <-> vu
+      a = nu`dotP`hu
+      nume = exp $ (a^2-1)/(m*a)^2
+      deno = pi * m^2 * a**4
+  return $ gray $ max 0 $ nume/deno
 
 heidrichSeidel :: Float -> Float -> Vector -> Vector -> Object s
 heidrichSeidel n m d l p v = do
@@ -121,15 +130,25 @@ heidrichSeidel n m d l p v = do
   r <- phongSpecular n l p v
   return $ r<*>(max 0 k**m)
 
--- ward distribution
--- cook-torrance
+cookTorrance :: Float -> Float -> Vector -> Object s
+cookTorrance m n l p v = do
+  (lu,nu,_,vu) <- rayLNRV p v l
+  let eu = inv vu
+      hu = norm $ lu <+> eu
+      en = eu`dotP`nu
+  ds <- beckmann m l p v
+  let fs = r0 + (1-r0)*(1-en)^5 where 
+        r0 = ((1-n)/(1+n))^2
+      gs = min 1 (p*2*(hu`dotP`nu)/(eu`dotP`hu)) where
+        p = en`min`(lu`dotP`nu)
+  return $ ds<*>(max 0 $ fs*gs / en)
 
 fog :: Float -> Color -> Vector -> Color -> Object s -> Object s
 fog x c s d o p v = do
   e <- getViewPoint
   let l = len $ e<->p
       m = exp $ -l * x
-      i = max 0 $ inv v`dot`norm s
+      i = inv v`dotP`norm s
   u <- o p v
   return $ lerp m (lerp i c d) u
 

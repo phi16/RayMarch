@@ -5,6 +5,7 @@ module RayMarch.Quaternion (
   xRotate,yRotate,zRotate,
   inverse) where
 
+import System.Random
 import RayMarch.Types hiding (norm)
 
 add :: Quaternion -> Quaternion -> Quaternion
@@ -57,3 +58,15 @@ yRotate t = (Vector (0,sin (t/2),0),cos (t/2))
 
 zRotate :: Float -> Quaternion
 zRotate t = (Vector (0,0,sin (t/2)),cos (t/2))
+
+instance Random (Vector, Float) where
+  randomR _ _ = error "Unimplemented"
+  random g = let
+      (u1,s1) = random g
+      (u2,s2) = random s1
+      (u3,s3) = random s2
+      a = sqrt $ 1-u1
+      b = sqrt u1
+      p = 2*pi*u2
+      q = 2*pi*u3
+    in ((Vector (a*sin p,a*cos p,b*sin q),b*cos q),s3)
