@@ -30,7 +30,7 @@ testSphere =(sp <|> bx) <|> ground <|> bound where
         scale 0.7 $ sponge $ metalic $ Color (0,0,1)
   ground = plane (Vector (0,0,1)) 0 $ metalic $ Color (0,1,0)
   bound = invert $ (sphere 30) $ sFog $ emission $ Color (0.5,1,1)
-  metalic c = eFog $ (alpha 0.5 mirror`lighten`phong (0.0,1.0,0.5) 5.0 light c)`darken`ambientOcclusion 2.0 0.1
+  metalic c = eFog $ (alpha 0.5 mirror`lighten`lambert light c`lighten`cookTorrance 0.4 3.0 light)`darken`ambientOcclusion 2.0 0.1
 
 testView :: View
 testView = View {
